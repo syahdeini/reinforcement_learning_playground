@@ -1,6 +1,4 @@
-# Reinforcement Learning: Coursework 1
-
-## Writing your own agent
+# Reinforcement Learning
 
 #### The `Agent` class
 
@@ -46,12 +44,6 @@ python keyboard_agent.py
 ```
 Make sure you run the command from the root directory of this repository.
 
-## Questions
-
-If you have any questions directly related to the code you can simply submit an issue to the repository.
-
-## Setup & Requirements
-This pacakge should run out of the box on a DICE machine, however if you want to install it on your own computer then you should have OpenCV 2 and the Arcade Learning Environment installed. OpenCV installation is OS and distribution dependent, so you should find out how to do it for your own system. Installation instructions for the Arcade Learning Environment can be found [here](https://github.com/mgbellemare/Arcade-Learning-Environment#quick-start). Make sure you use Python2 for running your agents.
 
 ### Setup on Ubuntu 16.04
 These are the steps you should follow in order to setup OpenCV, ALE and the coursework package on a clean Ubuntu 16.04. You might want to use them to prepare a virtual machine and work on it, instead of a DICE machine.
