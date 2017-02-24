@@ -20,7 +20,7 @@ class KeyboardAgent(Agent):
         cv2.imshow("Enduro", self._image)
         cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
 
-    def act(self):
+    def act(self,act):
         """ Implements the decision making process for selecting
         an action. Remember to store the obtained reward.
         """
@@ -53,6 +53,11 @@ class KeyboardAgent(Agent):
                 representation of the environment
         """
         # Visualise the environment grid
+        print(grid)
+        # pos_i = grid[1].index(2)
+        print("----------------------")
+        print(list(grid[0]).index(2)) 
+        print("----------------------")
         cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
 
     def learn(self):
@@ -64,11 +69,12 @@ class KeyboardAgent(Agent):
     def callback(self, learn, episode, iteration):
         """ Called at the end of each timestep for reporting/debugging purposes.
         """
-        print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
+        # print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
         # Show the latest game frame
+        print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
         cv2.imshow("Enduro", self._image)
 
 if __name__ == "__main__":
     a = KeyboardAgent()
-    a.run(False, episodes=2, draw=True)
+    a.run(False, episodes=100, draw=True)
     print 'Total reward: ' + str(a.total_reward)

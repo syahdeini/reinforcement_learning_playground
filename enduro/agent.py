@@ -2,7 +2,7 @@ from ale_python_interface import ALEInterface
 from enduro.action import Action
 from enduro.control import Controller
 from enduro.state import StateExtractor
-
+import random
 
 class Agent(object):
     def __init__(self):
@@ -14,6 +14,7 @@ class Agent(object):
         self._controller = Controller(self._ale)
         self._extractor = StateExtractor(self._ale)
         self._image = None
+        self.curr_action = 0
 
     def run(self, learn, episodes=1, draw=False):
         """ Implements the playing/learning loop.
@@ -26,27 +27,32 @@ class Agent(object):
         Returns:
             None
         """
+        if learn:
+            self.init_Q()
+        action = random.choice(self.getActionsSet()) # init_action for q_learning
         for e in range(episodes):
             # Observe the environment to set the initial state
             (grid, self._image) = self._extractor.run(draw=draw, scale=4.0)
             self.initialise(grid)
 
             num_frames = self._ale.getFrameNumber()
-
             # Each episode lasts 6500 frames
             while self._ale.getFrameNumber() - num_frames < 6500:
                 # Take an action
-                self.act()
+                self.act(action)
 
                 # Update the environment grid
+                s_grid = grid
                 (grid, self._image) = self._extractor.run(draw=draw, scale=4.0)
                 self.sense(grid)
-
+                s_next_grid = grid
                 # Perform learning if required
                 if learn:
-                    self.learn()
+                    # self.learn(s_grid,s_next_grid) # for q learning
+                    action = self.learn(s_grid,s_next_grid,action) 
 
                 self.callback(learn, e + 1, self._ale.getFrameNumber() - num_frames)
+            self.end_state(e)
             self._ale.reset_game()
 
     def getActionsSet(self):
@@ -115,5 +121,7 @@ class Agent(object):
         Returns:
             None
         """
+    def get_surround():
+
 
         raise NotImplementedError
