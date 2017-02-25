@@ -20,7 +20,7 @@ class QAgent(Agent):
         self.gamma = 0.9
         self.current_reward = 0
         self.set_total_reward = []
-
+        self.encourage = None
 
     def state_Q(self,l,q_state,i):
         if i==len(q_state):
@@ -90,7 +90,11 @@ class QAgent(Agent):
         max_a = None
         for act in self.getActionsSet():
             key_s_a = state+'_'+Action.toString(act)
-            pol_s_a = val_dict[key_s_a]
+            encourage_val = 0
+            if val_dict is self.policy_s_a and self.encourage == act:
+                encourage_val = val_dict[key_s_a] * 0.5
+            pol_s_a = val_dict[key_s_a] + encourage_val
+            
             if pol_s_a > max_pol_s_a:
                 max_pol_s_a = pol_s_a
                 max_a = act
@@ -132,7 +136,15 @@ class QAgent(Agent):
             temp_grid[12]=str(grid[1][pos_i+2])
             temp_grid[13]=str(grid[0][pos_i+2])
 
-
+        self.encourage = None
+        # encourage to right
+        if pos_i + 2 < len(grid[0]):
+            if grid[3][pos_i+1]==0 and grid[4][pos_i+1]==0 and grid[3][pos_i+2]==0:
+                self.encourage = Action.RIGHT
+        # encourage to left
+        if pos_i-2 > 0:  
+            if grid[3][pos_i-1]==0 and grid[4][pos_i-1]==0 and grid[3][pos_i-2]==0:
+                self.encourage = Action.LEFT
         # update the poliocy
         return ''.join(temp_grid)
 
@@ -153,7 +165,6 @@ class QAgent(Agent):
         qnext_s_a = self.state_dict[key_qnext_s_a]        
         q_s_a  = q_s_a + self.alpha * (self.current_reward+ (self.gamma * qnext_s_a)  - q_s_a) 
         self.state_dict[key_q_s_a] = q_s_a
-
         next_max_act = self.get_max_action(state,self.policy_s_a) # get the maximum action        
         return next_max_act
 
@@ -174,7 +185,7 @@ class QAgent(Agent):
         f.write("%d-%.4f-%.4f-%.4f\n"% val)
 
     def end_state(self,episode):
-        self.write_to_file(episode, self.set_total_reward, "q_agent_ench_reward_file")
+        self.write_to_file(episode, self.set_total_reward, "q_agent_add_behaviour_reward_file")
 
 
 if __name__ == "__main__":

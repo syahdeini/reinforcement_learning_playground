@@ -2,6 +2,7 @@ import cv2
 from enduro.agent import Agent
 from enduro.action import Action
 from enduro.state import EnvironmentState
+import numpy as np
 import random
 import pdb
 
@@ -10,14 +11,14 @@ class QAgent(Agent):
         super(QAgent, self).__init__()
         # Add member variables to your class here
         # if not self.total_reward:
-        self.total_reward = 0
-        self.Q_s_a = []
+        # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
         self.epsilon = 0.4
         self.alpha = 0.5
         self.gamma = 0.9
         self.current_reward = 0
+        self.set_total_reward = []
 
     def state_Q(self,l,q_state,i):
         if i==len(q_state):
@@ -66,6 +67,7 @@ class QAgent(Agent):
         # Do not use plain integers between 0 - 3 as it will not work
         self.current_reward = self.move(action) 
         self.total_reward += self.current_reward
+        self.set_total_reward.append(self.total_reward)
 
     def sense(self, grid):
         """ Constructs the next state from sensory signals.
@@ -111,7 +113,7 @@ class QAgent(Agent):
             temp_grid[1]=str(grid[1][pos_i-1])
         # RIGHT
         temp_grid[2]=str(grid[1][pos_i])
-        if pos_i < len(grid)-1:
+        if pos_i < len(grid[0]):
             temp_grid[3]=str(grid[0][pos_i+1])
             temp_grid[4]=str(grid[1][pos_i+1])
         # update the poliocy
@@ -149,6 +151,14 @@ class QAgent(Agent):
         # cv2.imshow("Enduro", self._image)
             # cv2.waitKey(40)
 
+    def write_to_file(self, episode, _l, filename):
+        f = open(filename,"a")
+        val = (episode, np.mean(_l), np.var(_l), self.total_reward)
+        f.write("%d-%.4f-%.4f-%.4f\n"% val)
+
+    def end_state(self,episode):
+        self.write_to_file(episode, self.set_total_reward, "reward_file")
+    
  
 
 if __name__ == "__main__":

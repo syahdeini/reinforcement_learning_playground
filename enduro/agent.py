@@ -3,6 +3,7 @@ from enduro.action import Action
 from enduro.control import Controller
 from enduro.state import StateExtractor
 import random
+import pdb
 
 class Agent(object):
     def __init__(self):
