@@ -14,7 +14,7 @@ class QAgent(Agent):
         # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
-        self.epsilon = 0.4
+        self.epsilon = 0.5
         self.alpha = 0.5
         self.gamma = 0.9
         self.current_reward = 0
@@ -97,8 +97,10 @@ class QAgent(Agent):
     def get_act_from_policy(self,max_act):
         # 1 - ( self.epsilon + float(self.epsilon) / len(self.getActionsSet()))
         # float(self.epsilon) / len(self.getActionsSet()
-        rand = random.random()
-        if rand < self.epsilon:
+        # rand = random.random()
+
+        choice = np.random.choice(np.arange(0,2), p=[self.epsilon,1-self.epsilon])
+        if choice==0:
             print("random")
             return random.choice(self.getActionsSet())
         else: # rand  
@@ -140,6 +142,7 @@ class QAgent(Agent):
         self.state_dict[key_q_s_a] = q_s_a
 
         next_max_act = self.get_act_from_policy(max_act) # get the maximum action        
+        print("Action - "+Action.toString(next_max_act))
         return next_max_act
 
 
@@ -148,11 +151,13 @@ class QAgent(Agent):
         """
         print "{0}/{1}: {2}---{3}".format(episode, iteration, self.total_reward,self.epsilon)
         # Show the game frame only if not learning
-        pdb.set_trace()
-        self.epsilon = float(1)/(iteration * (episode + 1))
+        # pdb.set_trace()
+        self.epsilon = self.epsilon - 0.0001*(episode)
         # if not learn:
         # cv2.imshow("Enduro", self._image)
             # cv2.waitKey(40)
+        cv2.imshow("Enduro", self._image)
+        cv2.waitKey(40)
 
     def write_to_file(self, episode, _l, filename):
         f = open(filename,"a")
