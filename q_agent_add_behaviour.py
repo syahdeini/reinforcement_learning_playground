@@ -16,7 +16,7 @@ class QAgent(Agent):
         self.policy_s_a = {}
         self.state_dict = {}
         self.epsilon = 0.4
-        self.alpha = 0.5
+        self.alpha = 0.3
         self.gamma = 0.9
         self.current_reward = 0
         self.set_total_reward = []
@@ -104,9 +104,11 @@ class QAgent(Agent):
         # 1 - ( self.epsilon + float(self.epsilon) / len(self.getActionsSet()))
         # float(self.epsilon) / len(self.getActionsSet()
         rand = random.random()
-        if rand >= self.epsilon:
+        if rand < self.epsilon:
+            print("random")
             return random.choice(self.getActionsSet())
         else: # rand  
+            print("explore")
             return max_act
 
     def get_surrround_agent(self,grid):
@@ -168,7 +170,7 @@ class QAgent(Agent):
         qnext_s_a = self.state_dict[key_qnext_s_a]        
         q_s_a  = q_s_a + self.alpha * (self.current_reward+ (self.gamma * qnext_s_a)  - q_s_a) 
         self.state_dict[key_q_s_a] = q_s_a
-        next_max_act = self.get_max_action(state,self.policy_s_a) # get the maximum action        
+        next_max_act = self.get_act_from_policy(max_act) # get the maximum action        
         return next_max_act
 
 
@@ -177,7 +179,7 @@ class QAgent(Agent):
         """
         print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
         # Show the game frame only if not learning
-        self.epsilon = float(1)/(iteration * (episode + 1))
+        self.epsilon = float(0.5)/(iteration * (episode + 1))
         # if not learn:
         # cv2.imshow("Enduro", self._image)
             # cv2.waitKey(40)

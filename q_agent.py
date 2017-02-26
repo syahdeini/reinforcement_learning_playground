@@ -98,9 +98,11 @@ class QAgent(Agent):
         # 1 - ( self.epsilon + float(self.epsilon) / len(self.getActionsSet()))
         # float(self.epsilon) / len(self.getActionsSet()
         rand = random.random()
-        if rand >= self.epsilon:
+        if rand < self.epsilon:
+            print("random")
             return random.choice(self.getActionsSet())
         else: # rand  
+            print("max_act")
             return max_act
 
     def get_surrround_agent(self,grid):
@@ -137,15 +139,16 @@ class QAgent(Agent):
         q_s_a  = q_s_a + self.alpha * (self.current_reward+ (self.gamma * qnext_s_a)  - q_s_a) 
         self.state_dict[key_q_s_a] = q_s_a
 
-        next_max_act = self.get_max_action(state,self.policy_s_a) # get the maximum action        
+        next_max_act = self.get_act_from_policy(max_act) # get the maximum action        
         return next_max_act
 
 
     def callback(self, learn, episode, iteration):
         """ Called at the end of each timestep for reporting/debugging purposes.
         """
-        print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
+        print "{0}/{1}: {2}---{3}".format(episode, iteration, self.total_reward,self.epsilon)
         # Show the game frame only if not learning
+        pdb.set_trace()
         self.epsilon = float(1)/(iteration * (episode + 1))
         # if not learn:
         # cv2.imshow("Enduro", self._image)
@@ -157,7 +160,7 @@ class QAgent(Agent):
         f.write("%d-%.4f-%.4f-%.4f\n"% val)
 
     def end_state(self,episode):
-        self.write_to_file(episode, self.set_total_reward, "reward_file")
+        self.write_to_file(episode, self.set_total_reward, "q_agent_reward_file")
     
  
 
