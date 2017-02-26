@@ -124,7 +124,7 @@ class QAgent(Agent):
             temp_grid[6]=str(grid[1][pos_i-2])
             
         temp_grid[2]=str(grid[1][pos_i])
-        temp_grid[9]=str(grid[2][pos_i+1])
+        temp_grid[9]=str(grid[2][pos_i])
         
         # RIGHT
         if pos_i+1 < len(grid[0]):
@@ -145,6 +145,9 @@ class QAgent(Agent):
         if pos_i-2 > 0:  
             if grid[3][pos_i-1]==0 and grid[4][pos_i-1]==0 and grid[3][pos_i-2]==0:
                 self.encourage = Action.LEFT
+
+        if grid[2][pos_i]==0 and grid[3][pos_i]==0 and grid[4][pos_i]==0:
+            self.encourage = Action.ACCELERATE
         # update the poliocy
         return ''.join(temp_grid)
 
