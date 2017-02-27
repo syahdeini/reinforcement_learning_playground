@@ -14,7 +14,7 @@ class QAgent(Agent):
         # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
-        self.epsilon = 0.3
+        self.epsilon = 0.5
         self.alpha = 0.4
         self.gamma = 0.9
         self.current_reward = 0
@@ -30,7 +30,7 @@ class QAgent(Agent):
         self.state_Q(l,q_state,i+1)
 
     def init_Q(self):
-        _l = [0 for i in range(24)]
+        _l = [0 for i in range(19)]
         q_grid = []
         self.state_Q(q_grid,_l,0)
         for grid in q_grid:
@@ -112,13 +112,12 @@ class QAgent(Agent):
         pos_i = list(grid[0]).index(2)
         # if it's on the left or ride side
         # LEFT
-        temp_grid =['1' for i in range(24)]
+        temp_grid =['1' for i in range(19)]
         if pos_i-1 > 0:
             temp_grid[0]=str(grid[0][pos_i-1])
             temp_grid[1]=str(grid[1][pos_i-1])
             temp_grid[8]=str(grid[2][pos_i-1])
             temp_grid[15]=str(grid[3][pos_i-1])
-            temp_grid[20]=str(grid[4][pos_i-1])
 
 
         if pos_i-2 >0:
@@ -126,13 +125,11 @@ class QAgent(Agent):
             temp_grid[6]=str(grid[1][pos_i-2])
             temp_grid[7]=str(grid[2][pos_i-2])
             temp_grid[14]=str(grid[3][pos_i-2])
-            temp_grid[19]=str(grid[4][pos_i-2])
 
         # pdb.set_trace()
         temp_grid[2]=str(grid[1][pos_i])
         temp_grid[9]=str(grid[2][pos_i])
         temp_grid[16]=str(grid[3][pos_i])
-        temp_grid[21]=str(grid[4][pos_i])
         
         # RIGHT
         if pos_i+1 < len(grid[0]):
@@ -140,14 +137,13 @@ class QAgent(Agent):
             temp_grid[3]=str(grid[1][pos_i+1])
             temp_grid[10]=str(grid[2][pos_i+1])
             temp_grid[17]=str(grid[3][pos_i+1])
-            temp_grid[22]=str(grid[4][pos_i+1])
             
         if pos_i+2 < len(grid[0]):         
             temp_grid[11]=str(grid[2][pos_i+2])
             temp_grid[12]=str(grid[1][pos_i+2])
             temp_grid[13]=str(grid[0][pos_i+2])
             temp_grid[18]=str(grid[3][pos_i+2])
-            temp_grid[23]=str(grid[4][pos_i+2])
+
 
         # update the poliocy
         return ''.join(temp_grid)
@@ -192,9 +188,9 @@ class QAgent(Agent):
         # pdb.set_trace()
         
         
-        self.reduction = float(0.01)/((episode)*(iteration + 1))
+        self.reduction = float(0.05)/((episode)*(iteration + 1))
         if (self.epsilon - self.reduction) < 0.0:
-            self.epsilon = 0
+            self.epsilon = 0.01
         else:
             self.epsilon = self.epsilon - self.reduction
         # if not learn:
@@ -209,7 +205,7 @@ class QAgent(Agent):
         f.write("%d-%.4f-%.4f-%.4f\n"% val)
 
     def end_state(self,episode):
-        self.write_to_file(episode, self.set_total_reward, "q_agent_reward_file")
+        self.write_to_file(episode, self.set_total_reward, "q_agent_ench_reward_file")
     
  
 

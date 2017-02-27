@@ -14,7 +14,7 @@ class QAgent(Agent):
         # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
-        self.epsilon = 0.3
+        self.epsilon = 0.5
         self.alpha = 0.4
         self.gamma = 0.9
         self.current_reward = 0
@@ -77,7 +77,7 @@ class QAgent(Agent):
                 representation of the environment
         """
         # Visualise the environment grid
-        # cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
+        cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
 
     # def update_policy(max_key):
     #     state,max_act = max_key.split('_')
@@ -151,9 +151,9 @@ class QAgent(Agent):
 
         self.constant = 0
         next_state = self.get_surrround_agent(next_grid)
-        if next_state[9]=='1' or next_state[2]=='1':
+        if next_state[3]=='1' or next_state[2]=='1' or next_state[1]=='1' :
             # pdb.set_trace()
-            self.constant = -0.5
+            self.constant = -1
         # find max action Q(s',a) based on policy (next state)
         max_act = self.get_max_action(next_state,self.state_dict) # get the maximum action
         key_qnext_s_a = next_state + '_' + Action.toString(max_act)
@@ -179,9 +179,9 @@ class QAgent(Agent):
         # pdb.set_trace()
         
         
-        self.reduction = float(0.01)/((episode)*(iteration + 1))
+        self.reduction = float(0.05)/((episode)*(iteration + 1))
         if (self.epsilon - self.reduction) < 0.0:
-            self.epsilon = 0
+            self.epsilon = 0.01
         else:
             self.epsilon = self.epsilon - self.reduction
         # if not learn:

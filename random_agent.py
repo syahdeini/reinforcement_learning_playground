@@ -61,9 +61,9 @@ class RandomAgent(Agent):
         """
         print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
         # Show the game frame only if not learning
-        if not learn:
-            cv2.imshow("Enduro", self._image)
-            cv2.waitKey(40)
+        # if not learn:
+        #     cv2.imshow("Enduro", self._image)
+        #     cv2.waitKey(40)
 
     def write_to_file(self, episode, _l, filename):
         f = open(filename,"a")
@@ -71,7 +71,7 @@ class RandomAgent(Agent):
         f.write("%d-%.4f-%.4f-%.4f\n"% val)
 
     def end_state(self,episode):
-        self.write_to_file(episode, self.set_total_reward, "reward_file")
+        self.write_to_file(episode, self.set_total_reward, "random_reward_file")
     
   
 if __name__ == "__main__":
