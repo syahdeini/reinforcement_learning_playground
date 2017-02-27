@@ -16,11 +16,11 @@ class QAgent(Agent):
         self.policy_s_a = {}
         self.state_dict = {}
         self.epsilon = 0.4
-        self.alpha = 0.4
+        self.alpha = 0.5
         self.gamma = 0.9
         self.current_reward = 0
         self.set_total_reward = []
-        self.encourage = None
+
 
     def state_Q(self,l,q_state,i):
         if i==len(q_state):
@@ -90,11 +90,7 @@ class QAgent(Agent):
         max_a = None
         for act in self.getActionsSet():
             key_s_a = state+'_'+Action.toString(act)
-            encourage_val = 0
-            if self.encourage == act:
-                encourage_val = val_dict[key_s_a] * 2
-            pol_s_a = val_dict[key_s_a] + encourage_val
-            
+            pol_s_a = val_dict[key_s_a]
             if pol_s_a > max_pol_s_a:
                 max_pol_s_a = pol_s_a
                 max_a = act
@@ -104,10 +100,9 @@ class QAgent(Agent):
         # 1 - ( self.epsilon + float(self.epsilon) / len(self.getActionsSet()))
         # float(self.epsilon) / len(self.getActionsSet()
         rand = random.random()
-        if rand >= self.epsilon:
+        if rand < self.epsilon:
             return random.choice(self.getActionsSet())
         else: # rand  
-            print("YEAY")
             return max_act
 
     def get_surrround_agent(self,grid):
@@ -125,7 +120,7 @@ class QAgent(Agent):
             temp_grid[6]=str(grid[1][pos_i-2])
             
         temp_grid[2]=str(grid[1][pos_i])
-        temp_grid[9]=str(grid[2][pos_i])
+        temp_grid[9]=str(grid[2][pos_i+1])
         
         # RIGHT
         if pos_i+1 < len(grid[0]):
@@ -137,18 +132,7 @@ class QAgent(Agent):
             temp_grid[12]=str(grid[1][pos_i+2])
             temp_grid[13]=str(grid[0][pos_i+2])
 
-        self.encourage = None
-        # encourage to right
-        if pos_i + 2 < len(grid[0]):
-            if grid[3][pos_i+1]==0 and grid[4][pos_i+1]==0 and grid[3][pos_i+2]==0:
-                self.encourage = Action.RIGHT
-        # encourage to left
-        if pos_i-2 > 0:  
-            if grid[3][pos_i-1]==0 and grid[4][pos_i-1]==0 and grid[3][pos_i-2]==0:
-                self.encourage = Action.LEFT
 
-        if grid[2][pos_i]==0 and grid[3][pos_i]==0:
-            self.encourage = Action.ACCELERATE
         # update the poliocy
         return ''.join(temp_grid)
 
@@ -169,6 +153,7 @@ class QAgent(Agent):
         qnext_s_a = self.state_dict[key_qnext_s_a]        
         q_s_a  = q_s_a + self.alpha * (self.current_reward+ (self.gamma * qnext_s_a)  - q_s_a) 
         self.state_dict[key_q_s_a] = q_s_a
+
         next_max_act = self.get_act_from_policy(max_act) # get the maximum action        
         return next_max_act
 
@@ -178,7 +163,7 @@ class QAgent(Agent):
         """
         print "{0}/{1}: {2}".format(episode, iteration, self.total_reward)
         # Show the game frame only if not learning
-        self.epsilon = float(0.4)/(iteration * (episode + 1))
+        self.epsilon = float(1)/(iteration * (episode + 1))
         # if not learn:
         # cv2.imshow("Enduro", self._image)
             # cv2.waitKey(40)
@@ -189,7 +174,7 @@ class QAgent(Agent):
         f.write("%d-%.4f-%.4f-%.4f\n"% val)
 
     def end_state(self,episode):
-        self.write_to_file(episode, self.set_total_reward, "q_agent_add_behaviour_reward_file")
+        self.write_to_file(episode, self.set_total_reward, "q_agent_ench_reward_file")
 
 
 if __name__ == "__main__":

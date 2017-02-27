@@ -14,7 +14,7 @@ class QAgent(Agent):
         # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
-        self.epsilon = 1
+        self.epsilon = 0.3
         self.alpha = 0.4
         self.gamma = 0.9
         self.current_reward = 0
@@ -49,8 +49,8 @@ class QAgent(Agent):
         """
         # Reset the total reward for the episode
         self.total_reward = 0
-        cv2.imshow("Enduro", self._image)
-        cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
+        # cv2.imshow("Enduro", self._image)
+        # cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
 
 
     def act(self,action):
@@ -77,7 +77,7 @@ class QAgent(Agent):
                 representation of the environment
         """
         # Visualise the environment grid
-        cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
+        # cv2.imshow("Environment Grid", EnvironmentState.draw(grid))
 
     # def update_policy(max_key):
     #     state,max_act = max_key.split('_')
@@ -116,11 +116,11 @@ class QAgent(Agent):
         if pos_i-1 > 0:
             temp_grid[0]=str(grid[0][pos_i-1])
             temp_grid[1]=str(grid[1][pos_i-1])
-        # RIGHT
-        temp_grid[2]=str(grid[1][pos_i])
-        if pos_i+1 < len(grid[0]):
-            temp_grid[3]=str(grid[0][pos_i+1])
-            temp_grid[4]=str(grid[1][pos_i+1])
+            temp_grid[1]=str(grid[1][pos_i-1])
+ 
+        if pos_i-2 >0:
+            temp_grid[5]=str(grid[0][pos_i-2])
+            temp_grid[6]=str(grid[1][pos_i-2])
         
         # pdb.set_trace()
         temp_grid[2]=str(grid[1][pos_i])
@@ -161,7 +161,7 @@ class QAgent(Agent):
         # if max_act==Action.BREAK:
         #     self.current_reward -= 5        
         if max_act==Action.ACCELERATE: #and self.current_reward>0:
-            self.constant = 0.25      
+            self.constant = 0.5     
         
         q_s_a  = q_s_a + self.alpha * (self.current_reward + (self.gamma * qnext_s_a)  - q_s_a +  self.constant)
         self.state_dict[key_q_s_a] = q_s_a
@@ -179,7 +179,7 @@ class QAgent(Agent):
         # pdb.set_trace()
         
         
-        self.reduction = float(0.000000085)/(episode*2)*(iteration + 1)
+        self.reduction = float(0.01)/((episode)*(iteration + 1))
         if (self.epsilon - self.reduction) < 0.0:
             self.epsilon = 0
         else:
