@@ -14,8 +14,8 @@ class QAgent(Agent):
         # self.total_reward = 0
         self.policy_s_a = {}
         self.state_dict = {}
-        self.epsilon = 0.5
-        self.alpha = 0.5
+        self.epsilon = 1
+        self.alpha = 0.4
         self.gamma = 0.9
         self.current_reward = 0
         self.set_total_reward = []
@@ -30,17 +30,18 @@ class QAgent(Agent):
         self.state_Q(l,q_state,i+1)
 
     def init_Q(self):
-        _l = [0 for i in range(5)]
+        _l = [0 for i in range(14)]
         q_grid = []
         self.state_Q(q_grid,_l,0)
         for grid in q_grid:
             for act in self.getActionsSet():
                 key = ''.join(grid)+ '_' + Action.toString(act)
-                self.state_dict[key] = 1.0/len(q_grid)
                 if act == Action.ACCELERATE:
-                    self.policy_s_a[key] = 1.0/len(self.getActionsSet()) + 0.45 #encourage to accelearte
+                    self.state_dict[key] = 2.0/len(q_grid)
+                if act == Action.ACCELERATE:
+                    self.state_dict[key] = 0.0/len(q_grid) 
                 else:
-                    self.policy_s_a[key] = 1.0/len(self.getActionsSet())
+                    self.state_dict[key] = 1.0/len(q_grid)
 
     def initialise(self, grid):
         """ Called at the beginning of an episode. Use it to construct
@@ -111,15 +112,30 @@ class QAgent(Agent):
         pos_i = list(grid[0]).index(2)
         # if it's on the left or ride side
         # LEFT
-        temp_grid =['1' for i in range(5)]
+        temp_grid =['1' for i in range(14)]
         if pos_i-1 > 0:
             temp_grid[0]=str(grid[0][pos_i-1])
             temp_grid[1]=str(grid[1][pos_i-1])
         # RIGHT
         temp_grid[2]=str(grid[1][pos_i])
-        if pos_i < len(grid[0]):
+        if pos_i+1 < len(grid[0]):
             temp_grid[3]=str(grid[0][pos_i+1])
             temp_grid[4]=str(grid[1][pos_i+1])
+        
+        # pdb.set_trace()
+        temp_grid[2]=str(grid[1][pos_i])
+        temp_grid[9]=str(grid[2][pos_i])
+        
+        # RIGHT
+        if pos_i+1 < len(grid[0]):
+            temp_grid[4]=str(grid[0][pos_i+1])
+            temp_grid[3]=str(grid[1][pos_i+1])
+            temp_grid[10]=str(grid[2][pos_i+1])
+        if pos_i+2 < len(grid[0]):         
+            temp_grid[11]=str(grid[2][pos_i+2])
+            temp_grid[12]=str(grid[1][pos_i+2])
+            temp_grid[13]=str(grid[0][pos_i+2])
+
         # update the poliocy
         return ''.join(temp_grid)
 
@@ -133,16 +149,25 @@ class QAgent(Agent):
         key_q_s_a = state + "_" + Action.toString(act)
         q_s_a = self.state_dict[key_q_s_a]
 
+        self.constant = 0
         next_state = self.get_surrround_agent(next_grid)
+        if next_state[9]=='1' or next_state[2]=='1':
+            # pdb.set_trace()
+            self.constant = -0.5
         # find max action Q(s',a) based on policy (next state)
         max_act = self.get_max_action(next_state,self.state_dict) # get the maximum action
         key_qnext_s_a = next_state + '_' + Action.toString(max_act)
-        qnext_s_a = self.state_dict[key_qnext_s_a]        
-        q_s_a  = q_s_a + self.alpha * (self.current_reward+ (self.gamma * qnext_s_a)  - q_s_a) 
+        qnext_s_a = self.state_dict[key_qnext_s_a]
+        # if max_act==Action.BREAK:
+        #     self.current_reward -= 5        
+        if max_act==Action.ACCELERATE: #and self.current_reward>0:
+            self.constant = 0.25      
+        
+        q_s_a  = q_s_a + self.alpha * (self.current_reward + (self.gamma * qnext_s_a)  - q_s_a +  self.constant)
         self.state_dict[key_q_s_a] = q_s_a
 
         next_max_act = self.get_act_from_policy(max_act) # get the maximum action        
-        print("Action - "+Action.toString(next_max_act))
+        print("Action - "+Action.toString(next_max_act)+ " reward = "+ str(self.current_reward))
         return next_max_act
 
 
@@ -152,12 +177,18 @@ class QAgent(Agent):
         print "{0}/{1}: {2}---{3}".format(episode, iteration, self.total_reward,self.epsilon)
         # Show the game frame only if not learning
         # pdb.set_trace()
-        self.epsilon = self.epsilon - 0.0001*(episode)
+        
+        
+        self.reduction = float(0.000000085)/(episode*2)*(iteration + 1)
+        if (self.epsilon - self.reduction) < 0.0:
+            self.epsilon = 0
+        else:
+            self.epsilon = self.epsilon - self.reduction
         # if not learn:
         # cv2.imshow("Enduro", self._image)
             # cv2.waitKey(40)
-        cv2.imshow("Enduro", self._image)
-        cv2.waitKey(40)
+        # cv2.imshow("Enduro", self._image)
+        # cv2.waitKey(40)
 
     def write_to_file(self, episode, _l, filename):
         f = open(filename,"a")
